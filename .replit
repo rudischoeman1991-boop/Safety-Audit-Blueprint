@@ -47,8 +47,8 @@ integrations = ["javascript_log_in_with_replit:2.0.0", "javascript_object_storag
 
 [rules.formatter.fileExtensions]
 
-[rules.formatter.fileExtensions.".ts"]
-id = "module:web/languageServer:typescript-language-server"
+[rules.formatter.fileExtensions.".html"]
+id = "module:web/languageServer:html"
 
 [userenv]
 

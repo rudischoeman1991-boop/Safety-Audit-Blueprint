@@ -1,3 +1,0 @@
-DATABASE_URL=your_postgresql_database_url_here
-PORT=3000
-NODE_ENV=development

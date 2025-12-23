@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>SafetyAudit Pro | Professional Auditing Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="https://img.icons8.com/color/96/000000/checklist.png">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>SafetyAudit<span>Pro</span></h1>
+                </div>
+                <div class="nav-badge">
+                    <i class="fas fa-bolt"></i>
+                    <span>Replit Powered</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="#dashboard" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#new-audit" class="nav-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Audit</span>
+                </a>
+                <a href="#audits" class="nav-link">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>My Audits</span>
+                    <span class="badge">12</span>
+                </a>
+                <a href="#templates" class="nav-link">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Templates</span>
+                </a>
+                <a href="#reports" class="nav-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </div>
+            
+            <div class="nav-user">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Auditor</span>
+                        <span class="user-role">Safety Professional</span>
+                    </div>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h2><i class="fas fa-sitemap"></i> Site Details & Audit Setup</h2>
+                <p class="subtitle">Complete site information to begin your safety audit</p>
+            </div>
+            <div class="header-actions">
+                <div class="audit-status">
+                    <div class="status-indicator draft">
+                        <i class="fas fa-edit"></i>
+                        <span>Draft Mode</span>
+                    </div>
+                    <div class="auto-save">
+                        <i class="fas fa-sync-alt spinning"></i>
+                        <span>Auto-saving...</span>
+                    </div>
+                </div>
+                <button class="btn-help">
+                    <i class="fas fa-question-circle"></i>
+                    Help Guide
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Site Details Form -->
+            <div class="audit-form-container" id="auditForm">
+                <!-- Progress Steps -->
+                <div class="progress-steps">
+                    <div class="step active">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Site Details</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Checklist</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Findings</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Sign Off</div>
+                    </div>
+                </div>
+
+                <!-- Form Sections -->
+                <form id="siteDetailsForm" class="audit-form">
+                    <!-- Section 1: Basic Information -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-info-circle"></i>
+                            <h3>Basic Audit Information</h3>
+                            <span class="section-badge required">Required</span>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="auditDate">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Date of Audit *
+                                </label>
+                                <input type="date" id="auditDate" name="auditDate" required>
+                                <div class="input-hint">Select the audit date</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="companyName">
+                                    <i class="fas fa-building"></i>
+                                    Company Name *
+                                </label>
+                                <input type="text" id="companyName" name="companyName" 
+                                       placeholder="Enter company/organization name" required>
+                                <div class="input-hint">Full legal company name</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="siteLocation">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Site Location
+                                </label>
+                                <input type="text" id="siteLocation" name="siteLocation" 
+                                       placeholder="Site address or location">
+                                <div class="input-hint">Physical site address</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="auditReference">
+                                    <i class="fas fa-hashtag"></i>
+                                    Audit Reference
+                                </label>
+                                <input type="text" id="auditReference" name="auditReference" 
+                                       placeholder="AUD-2024-001">
+                                <div class="input-hint">Unique audit identifier</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Site Personnel -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-users"></i>
+                            <h3>Site Personnel</h3>
+                            <span class="section-badge">Optional</span>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="siteManager">
+                                    <i class="fas fa-user-tie"></i>
+                                    Site Manager
+                                </label>
+                                <input type="text" id="siteManager" name="siteManager" 
+                                       placeholder="Full name of site manager">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="siteManagerContact">
+                                    <i class="fas fa-phone"></i>
+                                    Site Manager Contact
+                                </label>
+                                <input type="tel" id="siteManagerContact" name="siteManagerContact" 
+                                       placeholder="+1 (555) 123-4567">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="safetyOfficer">
+                                    <i class="fas fa-user-shield"></i>
+                                    Safety Officer
+                                </label>
+                                <input type="text" id="safetyOfficer" name="safetyOfficer" 
+                                       placeholder="Full name of safety officer">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="safetyOfficerEmail">
+                                    <i class="fas fa-envelope"></i>
+                                    Safety Officer Email *
+                                </label>
+                                <input type="email" id="safetyOfficerEmail" name="safetyOfficerEmail" 
+                                       placeholder="safety.officer@company.com" required>
+                                <div class="input-hint">For audit report distribution</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="safetyOfficerPhone">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    Safety Officer Phone
+                                </label>
+                                <input type="tel" id="safetyOfficerPhone" name="safetyOfficerPhone" 
+                                       placeholder="+1 (555) 987-6543">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Auditor Information -->
+                    <div class="form-section highlight-section">
+                        <div class="section-header">
+                            <i class="fas fa-user-check"></i>
+                            <h3>Auditor Information</h3>
+                            <span class="section-badge required">Required</span>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="auditorName">
+                                    <i class="fas fa-user"></i>
+                                    Auditor Name *
+                                </label>
+                                <input type="text" id="auditorName" name="auditorName" 
+                                       placeholder="Your full name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="auditorEmail">
+                                    <i class="fas fa-at"></i>
+                                    Auditor Email Address *
+                                </label>
+                                <input type="email" id="auditorEmail" name="auditorEmail" 
+                                       placeholder="your.email@company.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="auditorPhone">
+                                    <i class="fas fa-phone-alt"></i>
+                                    Auditor Contact Number *
+                                </label>
+                                <input type="tel" id="auditorContact" name="auditorContact" 
+                                       placeholder="+1 (555) 123-4567" required>
+                                <div class="input-hint">Include country code</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="auditorCompany">
+                                    <i class="fas fa-briefcase"></i>
+                                    Auditor Company
+                                </label>
+                                <input type="text" id="auditorCompany" name="auditorCompany" 
+                                       placeholder="Your company/organization">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="auditorLicense">
+                                    <i class="fas fa-id-card"></i>
+                                    Auditor License/ID
+                                </label>
+                                <input type="text" id="auditorLicense" name="auditorLicense" 
+                                       placeholder="License number or ID">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Additional Information -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <i class="fas fa-clipboard"></i>
+                            <h3>Additional Information</h3>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="workDescription">
+                                    <i class="fas fa-hard-hat"></i>
+                                    Work Description
+                                </label>
+                                <textarea id="workDescription" name="workDescription" 
+                                          rows="3" placeholder="Describe the work being performed..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="numberOfWorkers">
+                                    <i class="fas fa-users"></i>
+                                    Number of Workers
+                                </label>
+                                <input type="number" id="numberOfWorkers" name="numberOfWorkers" 
+                                       min="0" placeholder="0">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="weatherConditions">
+                                    <i class="fas fa-cloud-sun"></i>
+                                    Weather Conditions
+                                </label>
+                                <select id="weatherConditions" name="weatherConditions">
+                                    <option value="">Select weather</option>
+                                    <option value="clear">Clear/Sunny</option>
+                                    <option value="cloudy">Cloudy</option>
+                                    <option value="rain">Rainy</option>
+                                    <option value="windy">Windy</option>
+                                    <option value="extreme">Extreme Heat/Cold</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="riskLevel">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Initial Risk Assessment
+                                </label>
+                                <select id="riskLevel" name="riskLevel">
+                                    <option value="">Select risk level</option>
+                                    <option value="low">Low Risk</option>
+                                    <option value="medium">Medium Risk</option>
+                                    <option value="high">High Risk</option>
+                                    <option value="critical">Critical Risk</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <div class="action-left">
+                            <button type="button" class="btn btn-secondary" id="saveDraftBtn">
+                                <i class="fas fa-save"></i>
+                                Save Draft
+                            </button>
+                            <button type="button" class="btn btn-outline" id="clearFormBtn">
+                                <i class="fas fa-eraser"></i>
+                                Clear Form
+                            </button>
+                        </div>
+                        
+                        <div class="action-right">
+                            <button type="button" class="btn btn-icon" id="printPreviewBtn" title="Print Preview">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button type="button" class="btn btn-icon" id="exportPdfBtn" title="Export PDF">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="submitFormBtn">
+                                <i class="fas fa-arrow-right"></i>
+                                Continue to Checklist
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Recent Audits Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-card">
+                    <h4><i class="fas fa-history"></i> Recent Audits</h4>
+                    <div class="audit-list">
+                        <div class="audit-item completed">
+                            <div class="audit-info">
+                                <span class="audit-company">Construction Masters Inc.</span>
+                                <span class="audit-date">Dec 20, 2024</span>
+                            </div>
+                            <div class="audit-score">
+                                <span class="score">92%</span>
+                                <span class="status-badge completed">Completed</span>
+                            </div>
+                        </div>
+                        <div class="audit-item in-progress">
+                            <div class="audit-info">
+                                <span class="audit-company">Tech Build Corp</span>
+                                <span class="audit-date">Dec 21, 2024</span>
+                            </div>
+                            <div class="audit-score">
+                                <span class="score">65%</span>
+                                <span class="status-badge in-progress">In Progress</span>
+                            </div>
+                        </div>
+                        <div class="audit-item draft">
+                            <div class="audit-info">
+                                <span class="audit-company">Urban Developers Ltd</span>
+                                <span class="audit-date">Today</span>
+                            </div>
+                            <div class="audit-score">
+                                <span class="score">--</span>
+                                <span class="status-badge draft">Draft</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-card">
+                    <h4><i class="fas fa-chart-line"></i> Quick Stats</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Total Audits</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">18</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">92%</div>
+                            <div class="stat-label">Avg. Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">In Progress</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-card">
+                    <h4><i class="fas fa-lightbulb"></i> Quick Actions</h4>
+                    <div class="quick-actions">
+                        <button class="action-btn" id="addPhotoBtn">
+                            <i class="fas fa-camera"></i>
+                            Add Photos
+                        </button>
+                        <button class="action-btn" id="addNoteBtn">
+                            <i class="fas fa-sticky-note"></i>
+                            Add Notes
+                        </button>
+                        <button class="action-btn" id="loadTemplateBtn">
+                            <i class="fas fa-layer-group"></i>
+                            Load Template
+                        </button>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Site Details Saved Successfully!</h3>
+            <p>Your audit information has been saved to the database.</p>
+            <p class="modal-details">
+                <i class="fas fa-database"></i>
+                Stored in Replit PostgreSQL Database
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="viewAuditBtn">
+                    <i class="fas fa-eye"></i>
+                    View Audit
+                </button>
+                <button class="btn btn-primary" id="continueChecklistBtn">
+                    <i class="fas fa-clipboard-check"></i>
+                    Continue to Checklist
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SafetyAudit Pro</span>
+                </div>
+                <p class="footer-tagline">Professional Safety Auditing Platform</p>
+            </div>
+            
+            <div class="footer-center">
+                <div class="connection-status">
+                    <i class="fas fa-wifi"></i>
+                    <span>Connected to Replit Database</span>
+                    <div class="status-indicator connected"></div>
+                </div>
+                <div class="last-saved">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Last saved: <span id="lastSavedTime">Just now</span></span>
+                </div>
+            </div>
+            
+            <div class="footer-right">
+                <div class="version-info">
+                    <span>v1.0.0</span>
+                    <span class="divider">|</span>
+                    <span>Powered by Replit</span>
+                </div>
+                <button class="btn-footer" id="exportDataBtn">
+                    <i class="fas fa-download"></i>
+                    Export All Data
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
