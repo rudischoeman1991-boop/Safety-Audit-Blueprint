@@ -83,8 +83,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["'DM Sans'", "sans-serif"],
-        display: ["'Outfit'", "sans-serif"],
+        sans: ["var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
       },
