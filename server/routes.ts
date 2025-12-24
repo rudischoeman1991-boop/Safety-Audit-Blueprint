@@ -1,12 +1,11 @@
-
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { api } from "@shared/routes";
 import { z } from "zod";
-import { insertAuditSchema, insertAuditItemSchema, insertCorrectiveActionSchema, insertSiteSchema } from "@shared/schema";
+import { insertAuditSchema, insertAuditItemSchema, insertCorrectiveActionSchema, insertSiteSchema, insertAuditApprovalSchema } from "@shared/schema";
 import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import PDFDocument from "pdfkit";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -16,160 +15,212 @@ export async function registerRoutes(
   // Setup Auth
   await setupAuth(app);
   registerAuthRoutes(app);
-
-  // Setup Object Storage
   registerObjectStorageRoutes(app);
 
-  // Seed data on startup
+  // Seed templates
   await storage.seedChecklistTemplates();
-
-  // Helper to create initial user if needed (simplified)
-  // In real app, Replit Auth handles user creation, we just sync profiles
 
   // === API ROUTES ===
 
-  // Users
-  app.get(api.users.me.path, async (req, res) => {
-    // For now, mock a user or return the first user
-    // In production with Replit Auth, use req.user
-    // Mock user for MVP:
+  app.get("/api/user", async (req, res) => {
     let user = await storage.getUserByUsername("auditor1");
     if (!user) {
       user = await storage.createUser({ username: "auditor1", email: "auditor@example.com", name: "John Doe", role: "auditor" });
-      // Also create an admin
       await storage.createUser({ username: "admin1", email: "admin@example.com", name: "Admin User", role: "admin" });
     }
     res.json(user);
   });
 
-  app.get(api.users.list.path, async (req, res) => {
-    const users = await storage.getUsers();
-    res.json(users);
+  app.get("/api/users", async (req, res) => {
+    res.json(await storage.getUsers());
   });
 
-  // Sites
-  app.get(api.sites.list.path, async (req, res) => {
-    const sites = await storage.getSites();
+  app.get("/api/sites", async (req, res) => {
+    let sites = await storage.getSites();
     if (sites.length === 0) {
-      // Seed sites
       await storage.createSite({ name: "Cape Town Factory", location: "Cape Town", industry: "Manufacturing" });
       await storage.createSite({ name: "Johannesburg Mine", location: "Johannesburg", industry: "Mining" });
+      sites = await storage.getSites();
     }
-    res.json(await storage.getSites());
+    res.json(sites);
   });
 
-  app.post(api.sites.create.path, async (req, res) => {
+  app.post("/api/sites", async (req, res) => {
     try {
       const input = insertSiteSchema.parse(req.body);
-      const site = await storage.createSite(input);
-      res.status(201).json(site);
+      res.status(201).json(await storage.createSite(input));
     } catch (err) {
-       if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
-        });
-      }
-      throw err;
+      res.status(400).json({ message: "Invalid input" });
     }
   });
 
-  // Templates
-  app.get(api.checklistTemplates.list.path, async (req, res) => {
-    const templates = await storage.getChecklistTemplates();
-    res.json(templates);
+  app.get("/api/checklist-templates", async (req, res) => {
+    res.json(await storage.getChecklistTemplates());
   });
 
-  // Audits
-  app.get(api.audits.list.path, async (req, res) => {
-    const audits = await storage.getAudits();
-    res.json(audits);
+  app.get("/api/audits", async (req, res) => {
+    res.json(await storage.getAudits());
   });
 
-  app.get(api.audits.get.path, async (req, res) => {
+  app.get("/api/audits/:id", async (req, res) => {
     const audit = await storage.getAudit(Number(req.params.id));
-    if (!audit) return res.status(404).json({ message: "Audit not found" });
+    if (!audit) return res.status(404).json({ message: "Not found" });
     res.json(audit);
   });
 
-  app.post(api.audits.create.path, async (req, res) => {
+  app.post("/api/audits", async (req, res) => {
     try {
       const input = insertAuditSchema.parse(req.body);
-      const audit = await storage.createAudit(input);
-      res.status(201).json(audit);
+      res.status(201).json(await storage.createAudit(input));
     } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
-        });
-      }
-      throw err;
+      res.status(400).json({ message: "Invalid input" });
     }
   });
 
-  app.patch(api.audits.update.path, async (req, res) => {
+  app.patch("/api/audits/:id", async (req, res) => {
     try {
       const input = insertAuditSchema.partial().parse(req.body);
-      const audit = await storage.updateAudit(Number(req.params.id), input);
-      res.json(audit);
+      res.json(await storage.updateAudit(Number(req.params.id), input));
     } catch (err) {
       res.status(400).json({ message: "Invalid input" });
     }
   });
 
-  // Audit Items
-  app.patch(api.auditItems.update.path, async (req, res) => {
+  // Auto-save draft
+  app.post("/api/audits/:id/draft", async (req, res) => {
+    try {
+      await storage.updateAudit(Number(req.params.id), { draftData: JSON.stringify(req.body) });
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ message: "Error saving draft" });
+    }
+  });
+
+  app.patch("/api/audit-items/:id", async (req, res) => {
     try {
       const input = insertAuditItemSchema.partial().parse(req.body);
-      const item = await storage.updateAuditItem(Number(req.params.id), input);
-      
-      // Recalculate audit score if needed (simplified: do it on audit completion)
-      
-      res.json(item);
+      res.json(await storage.updateAuditItem(Number(req.params.id), input));
     } catch (err) {
       res.status(400).json({ message: "Invalid input" });
     }
   });
 
-  // Corrective Actions
-  app.get(api.correctiveActions.list.path, async (req, res) => {
-    const actions = await storage.getCorrectiveActions();
-    res.json(actions);
+  app.get("/api/corrective-actions", async (req, res) => {
+    res.json(await storage.getCorrectiveActions());
   });
 
-  app.post(api.correctiveActions.create.path, async (req, res) => {
+  app.post("/api/corrective-actions", async (req, res) => {
     try {
       const input = insertCorrectiveActionSchema.parse(req.body);
-      const action = await storage.createCorrectiveAction(input);
-      res.status(201).json(action);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join('.'),
-        });
-      }
-      throw err;
-    }
-  });
-
-  app.patch(api.correctiveActions.update.path, async (req, res) => {
-    try {
-      const input = insertCorrectiveActionSchema.partial().parse(req.body);
-      const action = await storage.updateCorrectiveAction(Number(req.params.id), input);
-      res.json(action);
+      res.status(201).json(await storage.createCorrectiveAction(input));
     } catch (err) {
       res.status(400).json({ message: "Invalid input" });
     }
   });
 
-  // Stats
-  app.get(api.stats.dashboard.path, async (req, res) => {
+  app.patch("/api/corrective-actions/:id", async (req, res) => {
+    try {
+      const input = insertCorrectiveActionSchema.partial().parse(req.body);
+      res.json(await storage.updateCorrectiveAction(Number(req.params.id), input));
+    } catch (err) {
+      res.status(400).json({ message: "Invalid input" });
+    }
+  });
+
+  // Audit Approvals
+  app.post("/api/audits/:id/approvals", async (req, res) => {
+    try {
+      const input = insertAuditApprovalSchema.parse(req.body);
+      const approval = await storage.createAuditApproval({ ...input, auditId: Number(req.params.id) });
+      // Auto-update audit status if approved
+      if (approval.status === "approved") {
+        await storage.updateAudit(Number(req.params.id), { status: "completed" });
+      }
+      res.status(201).json(approval);
+    } catch (err) {
+      res.status(400).json({ message: "Invalid input" });
+    }
+  });
+
+  app.get("/api/audits/:id/approvals", async (req, res) => {
+    res.json(await storage.getAuditApprovals(Number(req.params.id)));
+  });
+
+  // PDF Report Generation
+  app.get("/api/audits/:id/report", async (req, res) => {
+    const audit = await storage.getAudit(Number(req.params.id));
+    if (!audit) return res.status(404).json({ message: "Not found" });
+
+    try {
+      const doc = new PDFDocument();
+      
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="audit-report-${audit.auditNumber}.pdf"`);
+
+      doc.pipe(res);
+      
+      // Title
+      doc.fontSize(24).font("Helvetica-Bold").text("Safety Audit Report", { align: "center" });
+      doc.fontSize(12).font("Helvetica").text(`Audit Number: ${audit.auditNumber}`, { align: "center" });
+      doc.moveDown();
+
+      // Header Info
+      doc.font("Helvetica-Bold").text("Audit Details");
+      doc.font("Helvetica").fontSize(10);
+      doc.text(`Date: ${new Date(audit.date).toLocaleDateString()}`);
+      doc.text(`Type: ${audit.type}`);
+      doc.text(`Status: ${audit.status}`);
+      doc.text(`Score: ${audit.score}%`);
+      doc.moveDown();
+
+      // Compliance Score
+      doc.fontSize(12).font("Helvetica-Bold").text("Compliance Score");
+      doc.fontSize(10).font("Helvetica").text(`Overall Compliance: ${audit.score}%`);
+      doc.moveDown();
+
+      // Findings Summary
+      doc.fontSize(12).font("Helvetica-Bold").text("Findings Summary");
+      doc.fontSize(10).font("Helvetica").text("This report summarizes the audit findings based on OHSA, NEMA, and MHSA compliance requirements.");
+      doc.moveDown();
+
+      // Recommendations
+      doc.fontSize(12).font("Helvetica-Bold").text("Recommendations");
+      doc.fontSize(10).font("Helvetica");
+      if (audit.score && audit.score < 80) {
+        doc.text("- Immediate corrective actions required for non-compliant items");
+        doc.text("- Schedule follow-up audit within 30 days");
+      } else if (audit.score && audit.score < 95) {
+        doc.text("- Continue preventive maintenance programs");
+        doc.text("- Recommend annual review");
+      } else {
+        doc.text("- Maintain current compliance standards");
+      }
+      doc.moveDown();
+
+      // Footer
+      doc.fontSize(8).text(`Report Generated: ${new Date().toLocaleString()}`, { align: "center" });
+      
+      doc.end();
+    } catch (err) {
+      res.status(500).json({ message: "Error generating report" });
+    }
+  });
+
+  // Dashboard Stats
+  app.get("/api/stats/dashboard", async (req, res) => {
     const stats = await storage.getDashboardStats();
-    // Fetch recent audits too
-    const recentAudits = (await storage.getAudits()).slice(0, 5);
-    res.json({ ...stats, recentAudits });
+    res.json(stats);
+  });
+
+  // Audit Scoring
+  app.post("/api/audits/:id/calculate-score", async (req, res) => {
+    try {
+      const score = await storage.calculateAuditScore(Number(req.params.id));
+      await storage.updateAudit(Number(req.params.id), { score });
+      res.json({ score });
+    } catch (err) {
+      res.status(500).json({ message: "Error calculating score" });
+    }
   });
 
   return httpServer;
