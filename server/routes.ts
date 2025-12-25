@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { z } from "zod";
 import { insertAuditSchema, insertAuditItemSchema, insertCorrectiveActionSchema, insertSiteSchema, insertAuditApprovalSchema } from "@shared/schema";
 import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
-import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { registerObjectStorageRoutes } from "./replit_integrations/auth/object_storage";
 import PDFDocument from "pdfkit";
 
 export async function registerRoutes(
