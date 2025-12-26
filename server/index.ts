@@ -76,8 +76,9 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
-    const viteModule = require("./vite");
-    await viteModule.setupVite(httpServer, app);
+    // Use require for vite setup - esbuild-register will handle .ts file
+    const { setupVite } = require("./vite");
+    await setupVite(httpServer, app);
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
