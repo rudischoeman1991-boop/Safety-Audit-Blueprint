@@ -76,8 +76,8 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
-    const { setupVite } = await import("./vite.ts");
-    await setupVite(httpServer, app);
+    const viteModule = require("./vite");
+    await viteModule.setupVite(httpServer, app);
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
